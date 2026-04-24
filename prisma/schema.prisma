@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id         String   @id @default(cuid())
+  name       String
+  type       String   // rlhf, alignment, image_annotation, text_classification, evaluation
+  status     String   @default("active") // active, completed, paused
+  tasks      Int      @default(0)
+  completed  Int      @default(0)
+  accuracy   Float    @default(0)
+  client     String
+  priority   String   @default("medium") // critical, high, medium, low
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Model {
+  id            String @id @default(cuid())
+  name          String @unique
+  provider      String
+  type          String @default("chat") // chat, reasoning, code, embedding
+  contextWindow String
+  pricing       String // "$input/$output per 1M tokens"
+  rating        Float  @default(0)
+  latency       String
+  status        String @default("available")
+  createdAt     DateTime @default(now())
+}
+
+model Evaluation {
+  id       String   @id @default(cuid())
+  name     String
+  model    String
+  score    Float
+  category String   // knowledge, coding, conversation, safety, reasoning, etc
+  samples  Int      @default(0)
+  status   String   @default("completed") // completed, running, queued
+  createdAt DateTime @default(now())
+}
+
+model Agent {
+  id          String   @id @default(cuid())
+  name        String
+  model       String
+  status      String   @default("testing") // deployed, testing, disabled
+  requests    Int      @default(0)
+  avgLatency  String
+  successRate Float    @default(0)
+  tools       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Dataset {
+  id       String   @id @default(cuid())
+  name     String
+  type     String   // Image, Text, Code, Audio, Video, etc
+  records  Int      @default(0)
+  size     String
+  format   String
+  quality  Float    @default(0)
+  tags     String   // comma-separated
+  createdAt DateTime @default(now())
+}
+
+model Labeler {
+  id             String @id @default(cuid())
+  name           String
+  expertise      String
+  rating         Float  @default(0)
+  tasksCompleted Int    @default(0)
+  accuracy       Float  @default(0)
+  status         String @default("active") // active, on_break, inactive
+  region         String
+  hourlyRate     Float  @default(0)
+  createdAt      DateTime @default(now())
+}
+
+model FineTune {
+  id        String   @id @default(cuid())
+  name      String
+  baseModel String
+  dataset   String
+  status    String   @default("queued") // queued, running, completed, failed
+  epochs    Int      @default(0)
+  loss      Float?
+  evalScore Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ApiLog {
+  id        String   @id @default(cuid())
+  endpoint  String
+  model     String
+  status    Int
+  latency   Int      // ms
+  tokens    Int      @default(0)
+  ip        String
+  createdAt DateTime @default(now())
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  sessionId String
+  role      String   // system, user, assistant
+  content   String
+  model     String
+  createdAt DateTime @default(now())
+}
