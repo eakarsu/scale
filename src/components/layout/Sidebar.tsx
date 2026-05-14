@@ -6,7 +6,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, FolderOpen, Layers, Activity, Bot,
-  Database, Users, Orbit, FileText, MessageSquare, Menu, Zap
+  Database, Users, Orbit, FileText, MessageSquare, Menu, Zap, Sparkles
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { href: "/team", label: "Workforce", icon: Users },
   { href: "/finetune", label: "Fine-Tuning", icon: Orbit },
   { href: "/logs", label: "API Logs", icon: FileText },
+  { href: "/insights", label: "Insights", icon: Sparkles },
   { href: "/playground", label: "Playground", icon: MessageSquare },
 ];
 
