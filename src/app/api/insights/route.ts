@@ -3,7 +3,7 @@ import { getOpenRouterClient } from "@/lib/openrouter";
 import prisma from "@/lib/prisma";
 
 // POST /api/insights — LLM-powered analysis of recent ApiLog entries.
-// Returns 503 if OPENROUTER_API_KEY is not configured (and no apiKey override is supplied).
+// Returns 503 if the server-managed OPENROUTER_API_KEY is not configured.
 export async function POST(request: Request) {
   const startedAt = Date.now();
   let modelUsed = "unknown";
@@ -12,13 +12,12 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json().catch(() => ({}));
-    const { apiKey, model, lookback } = body || {};
+    const { model, lookback } = body || {};
 
-    const effectiveKey = apiKey || process.env.OPENROUTER_API_KEY;
-    if (!effectiveKey) {
+    if (!process.env.OPENROUTER_API_KEY) {
       status = 503;
       return NextResponse.json(
-        { error: "AI service not configured. OPENROUTER_API_KEY missing (or pass apiKey in body)." },
+        { error: "Optional AI service is not configured." },
         { status: 503 }
       );
     }
@@ -76,7 +75,7 @@ export async function POST(request: Request) {
     const chosenModel = model || "anthropic/claude-haiku-4-5";
     modelUsed = chosenModel;
 
-    const client = getOpenRouterClient(effectiveKey);
+    const client = getOpenRouterClient();
     const completion = await client.chat.completions.create({
       model: chosenModel,
       max_tokens: 1024,

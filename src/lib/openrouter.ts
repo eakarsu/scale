@@ -1,9 +1,9 @@
 import OpenAI from "openai";
 
-export function getOpenRouterClient(apiKey?: string) {
+export function getOpenRouterClient() {
   return new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
-    apiKey: apiKey || process.env.OPENROUTER_API_KEY || "",
+    apiKey: process.env.OPENROUTER_API_KEY || "",
     defaultHeaders: {
       "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
       "X-Title": "Nexus AI Platform",

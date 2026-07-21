@@ -1,8 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 
+if (process.env.NODE_ENV === "test" && process.env.DB_PATH) {
+  process.env.DATABASE_URL = `file:${process.env.DB_PATH}`;
+}
+
 const prisma = new PrismaClient();
 
 async function main() {
+  if (process.env.ALLOW_DISPOSABLE_SEED !== "YES") {
+    throw new Error("Seeding is disabled; set ALLOW_DISPOSABLE_SEED=YES only for a disposable demo database");
+  }
   console.log("🌱 Seeding database...");
 
   // Clear existing data

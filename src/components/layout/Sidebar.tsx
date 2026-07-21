@@ -75,7 +75,7 @@ export default function Sidebar() {
             <div className="text-xs text-cyan-400 font-medium">OpenRouter API</div>
             <div className="flex items-center gap-1 mt-1">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[10px] text-emerald-400">Connected</span>
+              <span className="text-[10px] text-gray-400">Optional provider</span>
             </div>
           </div>
         )}

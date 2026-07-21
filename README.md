@@ -1,6 +1,9 @@
-# Nexus AI Platform
+# Nexus AI Platform — local demonstration
 
-Full-stack AI data & deployment platform (Scale AI clone) built with Next.js 14, Prisma, SQLite, Tailwind CSS, and OpenRouter API.
+Single-operator AI operations demonstration built with Next.js, Prisma, SQLite,
+Tailwind CSS, and an optional OpenRouter connector. It is not a production
+multi-tenant ML platform and is not affiliated with Scale AI. See `SECURITY.md`
+and `_COMPLETENESS_REVIEW.md` for the supported boundary and launch blockers.
 
 ## Architecture
 
@@ -56,20 +59,23 @@ nexus-ai-project/
 ## Quick Start
 
 ```bash
-# 1. Install dependencies
-npm install
+# 1. Reproducible install
+npm ci
 
 # 2. Generate Prisma client + create SQLite database
 npx prisma generate
-npx prisma db push
+npx prisma db push # disposable/local database only
 
 # 3. Seed database with 128 demo records (16 per feature)
-npx tsx src/lib/seed.ts
+ALLOW_DISPOSABLE_SEED=YES npm run seed
 
-# 4. Start development server
-npm run dev
+# 4. Build, configure operator credentials, then start the verified runtime
+npm run build
+cp .env.example .env
+# edit .env, including a bcrypt password hash and unique session secret
+./start.sh
 
-# 5. Open http://localhost:3000
+# 5. Open http://127.0.0.1:3051 and sign in as the configured operator
 ```
 
 ## Features (10 modules, 16+ seeded records each)
@@ -90,9 +96,8 @@ npm run dev
 ## OpenRouter Setup
 
 1. Get API key from [openrouter.ai/keys](https://openrouter.ai/keys)
-2. Either:
-   - Paste key directly in the Playground UI, OR
-   - Set `OPENROUTER_API_KEY` in `.env` for server-side usage
+2. For this local demonstration, set `OPENROUTER_API_KEY` in the runtime
+   environment. Do not use customer/provider production credentials.
 
 ## Tech Stack
 

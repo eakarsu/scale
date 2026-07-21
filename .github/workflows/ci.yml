@@ -1,0 +1,25 @@
+name: ci
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npx prisma generate
+        env:
+          DATABASE_URL: file:./ci.db
+      - run: npm run build
+        env:
+          DATABASE_URL: file:./ci.db
+          NEXUS_SESSION_SECRET: ci-session-secret-at-least-32-characters
+          NEXUS_OPERATOR_EMAIL: operator@example.test
+          NEXUS_OPERATOR_PASSWORD_HASH: $2b$12$C6UzMDM.H6dfI/f/IKcEe.yrNRwLeO.JMzQW0U8T7uZR5T6z5MZ6S
+      - uses: gitleaks/gitleaks-action@v2

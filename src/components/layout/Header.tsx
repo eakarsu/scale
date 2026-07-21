@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { Search, ChevronRight } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Search, ChevronRight, LogOut } from "lucide-react";
 
 const PAGE_NAMES: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -18,6 +18,7 @@ const PAGE_NAMES: Record<string, string> = {
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const pageName = PAGE_NAMES[pathname] || "Dashboard";
 
   return (
@@ -35,6 +36,19 @@ export default function Header() {
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-xs font-bold text-white">
           E
         </div>
+        <button
+          type="button"
+          title="Sign out"
+          aria-label="Sign out"
+          onClick={async () => {
+            await fetch("/api/auth/logout", { method: "POST" });
+            router.replace("/login");
+            router.refresh();
+          }}
+          className="rounded p-2 text-gray-400 hover:bg-white/[0.05] hover:text-white"
+        >
+          <LogOut size={17} />
+        </button>
       </div>
     </header>
   );

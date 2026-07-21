@@ -9,10 +9,8 @@ import type { ChatMessage } from "@/types";
 export default function PlaygroundPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
-  const [model, setModel] = useState(SUPPORTED_MODELS[0].id);
+  const [model, setModel] = useState<string>(SUPPORTED_MODELS[0].id);
   const [loading, setLoading] = useState(false);
-  const [apiKey, setApiKey] = useState("");
-  const [showApiInput, setShowApiInput] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -21,8 +19,6 @@ export default function PlaygroundPage() {
 
   const sendMessage = useCallback(async () => {
     if (!input.trim() || loading) return;
-    if (!apiKey.trim()) { alert("Please enter your OpenRouter API key"); return; }
-
     const userMsg: ChatMessage = { role: "user", content: input };
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
@@ -36,7 +32,6 @@ export default function PlaygroundPage() {
         body: JSON.stringify({
           messages: [{ role: "system", content: "You are a helpful AI assistant." }, ...newMessages],
           model,
-          apiKey,
         }),
       });
       const data = await res.json();
@@ -50,7 +45,7 @@ export default function PlaygroundPage() {
       setMessages([...newMessages, { role: "assistant", content: `Network error: ${err.message}` }]);
     }
     setLoading(false);
-  }, [input, apiKey, model, messages, loading]);
+  }, [input, model, messages, loading]);
 
   const modelName = SUPPORTED_MODELS.find(m => m.id === model)?.name || model;
 
@@ -62,18 +57,9 @@ export default function PlaygroundPage() {
           <select value={model} onChange={e => setModel(e.target.value)} className="bg-white/[0.05] border border-white/[0.1] rounded-lg px-3 py-2 text-sm text-white outline-none">
             {SUPPORTED_MODELS.map(m => <option key={m.id} value={m.id} className="bg-gray-900">{m.name} ({m.provider})</option>)}
           </select>
-          <button onClick={() => setShowApiInput(!showApiInput)} className="px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg text-sm text-gray-400 hover:text-white transition-colors">
-            {showApiInput ? "Hide" : "Show"} Key
-          </button>
+          <span className="px-3 py-2 text-xs text-gray-500">Provider key is server-managed</span>
         </div>
       </div>
-
-      {showApiInput && (
-        <div className="mb-4">
-          <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="Enter OpenRouter API key (sk-or-...)"
-            className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none focus:border-cyan-500/50" />
-        </div>
-      )}
 
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto bg-white/[0.02] border border-white/[0.06] rounded-xl p-4 mb-4 space-y-4">
         {messages.length === 0 && !loading && (

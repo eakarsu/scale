@@ -34,12 +34,12 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { messages, model, apiKey, skipInjectionScan } = await request.json();
+    const { messages, model, skipInjectionScan } = await request.json();
     modelUsed = model || "unknown";
 
-    if (!apiKey) {
-      status = 401;
-      return NextResponse.json({ error: "API key required" }, { status: 401 });
+    if (!process.env.OPENROUTER_API_KEY) {
+      status = 503;
+      return NextResponse.json({ error: "Optional model provider is not configured" }, { status: 503 });
     }
 
     // Prompt-injection scan on user-role messages; flagged but non-blocking by default.
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
       (request as unknown as { __scan: typeof scan }).__scan = scan;
     }
 
-    const client = getOpenRouterClient(apiKey);
+    const client = getOpenRouterClient();
 
     const completion = await client.chat.completions.create({
       model,
