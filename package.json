@@ -44,6 +44,10 @@
     "esbuild": "0.28.1",
     "form-data": "4.0.6",
     "lodash": "4.18.1",
-    "picomatch": "4.0.5"
+    "picomatch": "4.0.5",
+    "postcss": "8.5.20",
+    "next": {
+      "sharp": "0.35.0"
+    }
   }
 }
