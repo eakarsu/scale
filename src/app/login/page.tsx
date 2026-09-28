@@ -1,10 +1,8 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -21,8 +19,7 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
       if (!response.ok) throw new Error("Invalid email or password");
-      router.replace("/dashboard");
-      router.refresh();
+      window.location.assign("/dashboard");
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Login failed");
     } finally {
