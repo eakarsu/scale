@@ -8,15 +8,14 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  async function submit(event: FormEvent) {
-    event.preventDefault();
+  async function authenticate(emailInput: string, passwordInput: string) {
     setBusy(true);
     setError("");
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: emailInput, password: passwordInput }),
       });
       if (!response.ok) throw new Error("Invalid email or password");
       window.location.assign("/dashboard");
@@ -25,6 +24,25 @@ export default function LoginPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    await authenticate(email, password);
+  }
+
+  async function demoLogin() {
+    const demoEmail = process.env.NEXT_PUBLIC_DEMO_EMAIL;
+    const demoPassword = process.env.NEXT_PUBLIC_DEMO_PASSWORD;
+
+    if (!demoEmail || !demoPassword) {
+      setError("Demo credentials are not configured");
+      return;
+    }
+
+    setEmail(demoEmail);
+    setPassword(demoPassword);
+    await authenticate(demoEmail, demoPassword);
   }
 
   return (
@@ -36,7 +54,7 @@ export default function LoginPage() {
         {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
         <button
           type="button"
-          onClick={() => { setEmail(process.env.NEXT_PUBLIC_DEMO_EMAIL || ''); setPassword(process.env.NEXT_PUBLIC_DEMO_PASSWORD || ''); }}
+          onClick={demoLogin}
           disabled={!process.env.NEXT_PUBLIC_DEMO_EMAIL || !process.env.NEXT_PUBLIC_DEMO_PASSWORD}
           aria-label="Auto Fill Demo Credentials"
           style={{ width: '100%', marginBottom: '12px', padding: '10px 14px', borderRadius: '8px', border: '1px solid currentColor', background: 'transparent', cursor: 'pointer' }}
