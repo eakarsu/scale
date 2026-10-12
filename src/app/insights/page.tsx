@@ -1,5 +1,6 @@
 "use client";
 
+import AIResponseReport from "../../components/AIResponseReport";
 import { useState } from "react";
 import { PageHeader } from "@/components/ui";
 import { SUPPORTED_MODELS } from "@/lib/openrouter";
@@ -49,6 +50,11 @@ export default function InsightsPage() {
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState<string>(SUPPORTED_MODELS[0].id);
   const [lookback, setLookback] = useState(200);
+  const insightExamples = [
+    { label: "Recent activity", lookback: 50, modelIndex: 0 },
+    { label: "Broader trends", lookback: 200, modelIndex: 1 },
+    { label: "Longer history", lookback: 500, modelIndex: 2 },
+  ];
 
   const loadStats = async () => {
     setStatsLoading(true);
@@ -98,6 +104,10 @@ export default function InsightsPage() {
 
       {/* Controls */}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4 mb-6 space-y-3">
+        <div aria-label="Insight examples" className="flex flex-wrap gap-2">
+          {insightExamples.map(example => <button key={example.label} type="button" disabled={insightsLoading} onClick={() => { setLookback(example.lookback); setModel(SUPPORTED_MODELS[example.modelIndex % SUPPORTED_MODELS.length].id); }} className="rounded-lg border border-white/[0.1] px-3 py-2 text-xs text-gray-200 hover:bg-white/[0.08] disabled:opacity-50">{example.label}</button>)}
+          <p className="w-full text-xs text-gray-500">Examples set the sample size and model. Any entered API key stays in place; provide a real configured key if required.</p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
             <label className="text-[10px] uppercase tracking-wider text-gray-500 mb-1 block">Sample Size</label>
@@ -278,9 +288,7 @@ export default function InsightsPage() {
             </div>
           )}
           {insights.insights.raw && !insights.insights.findings && (
-            <pre className="text-xs text-gray-400 whitespace-pre-wrap font-mono bg-black/20 p-3 rounded">
-              {insights.insights.raw}
-            </pre>
+            <AIResponseReport value={insights.insights.raw}/>
           )}
         </div>
       )}

@@ -2,6 +2,9 @@ import prisma from "@/lib/prisma";
 import { StatCard, ProgressBar } from "@/components/ui";
 import { formatNumber } from "@/lib/utils";
 
+// The overview reads live database records and must not be prerendered at build time.
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const [projects, agents, evaluations, datasets, labelers, finetunes, logs] = await Promise.all([
     prisma.project.findMany(),

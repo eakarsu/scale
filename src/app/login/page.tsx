@@ -56,10 +56,10 @@ export default function LoginPage() {
           type="button"
           onClick={demoLogin}
           disabled={!process.env.NEXT_PUBLIC_DEMO_EMAIL || !process.env.NEXT_PUBLIC_DEMO_PASSWORD}
-          aria-label="Auto Fill Demo Credentials"
+          aria-label="Log In as Demo"
           style={{ width: '100%', marginBottom: '12px', padding: '10px 14px', borderRadius: '8px', border: '1px solid currentColor', background: 'transparent', cursor: 'pointer' }}
         >
-          Auto Fill Demo Credentials
+          Log In as Demo
         </button>
         <button disabled={busy} className="w-full rounded bg-blue-600 px-4 py-2 font-medium disabled:opacity-60">{busy ? "Signing in…" : "Sign in"}</button>
       </form>

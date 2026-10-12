@@ -1,19 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { loadRecords } from "@/lib/records";
 import { PageHeader, DataTable } from "@/components/ui";
 import type { ApiLog } from "@/types";
 
 export default function LogsPage() {
   const [logs, setLogs] = useState<ApiLog[]>([]);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
-    fetch("/api/logs").then(r => r.json()).then(setLogs);
+    setLoadError("");
+    loadRecords<ApiLog>("/api/logs").then(setLogs).catch(error => { setLogs([]); setLoadError(error.message); });
   }, []);
 
   return (
     <div>
       <PageHeader title="API Logs" subtitle="Real-time OpenRouter API request logs" />
+      {loadError && <p role="alert" className="mb-4 rounded border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{loadError}</p>}
       <DataTable headers={[
         { label: "Time" }, { label: "Endpoint" }, { label: "Model" },
         { label: "Status" }, { label: "Latency", align: "right" }, { label: "Tokens", align: "right" },

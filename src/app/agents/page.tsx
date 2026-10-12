@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { loadRecords } from "@/lib/records";
 import { PageHeader, StatusBadge } from "@/components/ui";
 import { formatNumber } from "@/lib/utils";
 import type { Agent } from "@/types";
 
 export default function AgentsPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
-    fetch("/api/agents").then(r => r.json()).then(setAgents);
+    setLoadError("");
+    loadRecords<Agent>("/api/agents").then(setAgents).catch(error => { setAgents([]); setLoadError(error.message); });
   }, []);
 
   return (
@@ -19,6 +22,7 @@ export default function AgentsPage() {
         subtitle={`Agentex-powered deployment • ${agents.length} agents`}
         action={<button className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-medium transition-colors">+ Deploy Agent</button>}
       />
+      {loadError && <p role="alert" className="mb-4 rounded border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{loadError}</p>}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {agents.map(a => (
           <div key={a.id} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 hover:border-cyan-500/30 transition-all">

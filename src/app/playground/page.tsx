@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { PageHeader } from "@/components/ui";
 import { Send } from "lucide-react";
 import { SUPPORTED_MODELS } from "@/lib/openrouter";
+import AIResponseReport from "@/components/AIResponseReport";
 import type { ChatMessage } from "@/types";
 
 export default function PlaygroundPage() {
@@ -48,6 +49,11 @@ export default function PlaygroundPage() {
   }, [input, model, messages, loading]);
 
   const modelName = SUPPORTED_MODELS.find(m => m.id === model)?.name || model;
+  const examples = [
+    { label: "Summarize an incident", prompt: "Summarize this fictional incident in three bullets and list the unknowns: At 09:15, checkout latency rose from 220 ms to 900 ms. At 09:42, the team rolled back a deployment. Error rate returned to baseline by 09:50." },
+    { label: "Draft a support reply", prompt: "Draft a concise, empathetic reply to a fictional customer whose order confirmation is delayed. Explain that the order status is being checked, avoid promising a delivery date, and offer a next update within one business day." },
+    { label: "Review a launch plan", prompt: "Review this fictional launch plan for risks and missing checks: A small team will release a new dashboard on Friday, monitor error rate and latency for one hour, and roll back if errors exceed 2%." },
+  ];
 
   return (
     <div className="flex flex-col h-[calc(100vh-7rem)]">
@@ -73,7 +79,9 @@ export default function PlaygroundPage() {
               ? "bg-cyan-600/20 text-cyan-100 border border-cyan-500/20"
               : "bg-white/[0.05] text-gray-300 border border-white/[0.06]"}`}>
               <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1 font-medium">{m.role}</div>
-              <div className="whitespace-pre-wrap">{m.content}</div>
+              {m.role === "assistant" && !m.content.startsWith("Error:") && !m.content.startsWith("Network error:")
+                ? <AIResponseReport value={m.content} title="Assistant response" />
+                : <div className="whitespace-pre-wrap">{m.content}</div>}
             </div>
           </div>
         ))}
@@ -86,6 +94,9 @@ export default function PlaygroundPage() {
         )}
       </div>
 
+      <div aria-label="Sample prompts" className="mb-3 flex flex-wrap gap-2">
+        {examples.map(example => <button key={example.label} type="button" disabled={loading} onClick={() => setInput(example.prompt)} className="rounded-lg border border-white/[0.1] px-3 py-2 text-xs text-gray-200 hover:bg-white/[0.08] disabled:opacity-50">{example.label}</button>)}
+      </div>
       <div className="flex gap-2">
         <input value={input} onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage()}

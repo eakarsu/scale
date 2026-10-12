@@ -1,16 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { loadRecords } from "@/lib/records";
 import { PageHeader, StatusBadge } from "@/components/ui";
 import { Search } from "lucide-react";
 import type { Model } from "@/types";
 
 export default function ModelsPage() {
   const [models, setModels] = useState<Model[]>([]);
+  const [loadError, setLoadError] = useState("");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch(`/api/models?search=${search}`).then(r => r.json()).then(setModels);
+    setLoadError("");
+    loadRecords<Model>(`/api/models?search=${search}`).then(setModels).catch(error => { setModels([]); setLoadError(error.message); });
   }, [search]);
 
   return (
@@ -25,6 +28,7 @@ export default function ModelsPage() {
           </div>
         }
       />
+      {loadError && <p role="alert" className="mb-4 rounded border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{loadError}</p>}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {models.map(m => (
           <div key={m.id} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 hover:border-cyan-500/30 hover:bg-white/[0.05] transition-all cursor-pointer group">

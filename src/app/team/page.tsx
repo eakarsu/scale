@@ -1,14 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { loadRecords } from "@/lib/records";
 import { PageHeader, StatusBadge } from "@/components/ui";
 import type { Labeler } from "@/types";
 
 export default function TeamPage() {
   const [labelers, setLabelers] = useState<Labeler[]>([]);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
-    fetch("/api/labelers").then(r => r.json()).then(setLabelers);
+    setLoadError("");
+    loadRecords<Labeler>("/api/labelers").then(setLabelers).catch(error => { setLabelers([]); setLoadError(error.message); });
   }, []);
 
   const regions = new Set(labelers.map(l => l.region));
@@ -20,6 +23,7 @@ export default function TeamPage() {
         subtitle={`${labelers.length} expert annotators across ${regions.size} regions`}
         action={<button className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-medium transition-colors">+ Invite Labeler</button>}
       />
+      {loadError && <p role="alert" className="mb-4 rounded border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{loadError}</p>}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {labelers.map(l => (
           <div key={l.id} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 hover:border-cyan-500/30 transition-all">
