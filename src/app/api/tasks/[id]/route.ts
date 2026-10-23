@@ -1,0 +1,1 @@
+import {NextResponse} from "next/server"; import {updateTask} from "@/lib/wave4d"; export async function PATCH(r:Request,c:{params:Promise<{id:string}>}){try{const t=updateTask((await c.params).id,await r.json()); return t?NextResponse.json(t):NextResponse.json({error:"Task not found"},{status:404})}catch(e:any){return NextResponse.json({error:e.message},{status:e.status||400})}}

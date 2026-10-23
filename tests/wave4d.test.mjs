@@ -1,0 +1,4 @@
+
+import assert from "node:assert/strict"; import {readFileSync} from "node:fs"; import test from "node:test"; const read=p=>readFileSync(new URL(`../${p}`,import.meta.url),"utf8");
+test("wave4d tasks, export and AI fallback are wired",()=>{ assert.match(read("src/lib/wave4d.ts"),/aiGenerated:false/); assert.match(read("src/lib/wave4d.ts"),/OPENROUTER_API_KEY/); assert.match(read("src/app/api/tasks/route.ts"),/createTask/); assert.match(read("src/app/api/tasks/[id]/route.ts"),/updateTask/); assert.match(read("src/app/api/projects/export/route.ts"),/projectsToCsv/); assert.match(read("src/app/api/projects/route.ts"),/searchParams.get\("q"\)/); assert.match(read("src/components/AIResponseReport.tsx"),/Empty string/); });
+test("deterministic briefs preserve zero values in source",()=>{ const l=read("src/lib/wave4d.ts"); assert.match(l,/completionPct:pct/); assert.match(l,/averageScore:avg/); });

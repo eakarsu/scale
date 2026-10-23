@@ -31,19 +31,6 @@ export default function LoginPage() {
     await authenticate(email, password);
   }
 
-  async function demoLogin() {
-    const demoEmail = process.env.NEXT_PUBLIC_DEMO_EMAIL;
-    const demoPassword = process.env.NEXT_PUBLIC_DEMO_PASSWORD;
-
-    if (!demoEmail || !demoPassword) {
-      setError("Demo credentials are not configured");
-      return;
-    }
-
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-    await authenticate(demoEmail, demoPassword);
-  }
 
   return (
     <div className="fixed inset-0 z-[100] grid place-items-center bg-[#0a0e17] p-6">
@@ -52,15 +39,6 @@ export default function LoginPage() {
         <label className="block text-sm">Email<input aria-label="Email" type="email" required autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-2 w-full rounded border border-slate-600 bg-slate-950 px-3 py-2" /></label>
         <label className="block text-sm">Password<input aria-label="Password" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-2 w-full rounded border border-slate-600 bg-slate-950 px-3 py-2" /></label>
         {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
-        <button
-          type="button"
-          onClick={demoLogin}
-          disabled={!process.env.NEXT_PUBLIC_DEMO_EMAIL || !process.env.NEXT_PUBLIC_DEMO_PASSWORD}
-          aria-label="Log In as Demo"
-          style={{ width: '100%', marginBottom: '12px', padding: '10px 14px', borderRadius: '8px', border: '1px solid currentColor', background: 'transparent', cursor: 'pointer' }}
-        >
-          Log In as Demo
-        </button>
         <button disabled={busy} className="w-full rounded bg-blue-600 px-4 py-2 font-medium disabled:opacity-60">{busy ? "Signing in…" : "Sign in"}</button>
       </form>
     </div>

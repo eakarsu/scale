@@ -100,6 +100,7 @@ export NEXUS_OPERATOR_EMAIL="${PROVISION_ADMIN_EMAIL:-${ADMIN_EMAIL:-}}"
 export NEXT_PUBLIC_DEMO_EMAIL="$NEXUS_OPERATOR_EMAIL"
 export NEXT_PUBLIC_DEMO_PASSWORD="${PROVISION_ADMIN_PASSWORD:-${ADMIN_PASSWORD:-}}"
 export NEXUS_OPERATOR_PASSWORD_HASH="$(node -e "process.stdout.write(require('bcryptjs').hashSync(process.env.NEXT_PUBLIC_DEMO_PASSWORD,12))")"
+export NEXUS_OPERATOR_PASSWORD_HASH_B64="$(node -e "process.stdout.write(Buffer.from(require('bcryptjs').hashSync(process.env.NEXT_PUBLIC_DEMO_PASSWORD,12)).toString('base64'))")"
 ui_database_path="${RUNTIME_SCALE_UI_DB:-${TMPDIR:-/tmp}/scale-runtime-ui.db}"
 (cd "$PROJECT_DIR" && env DATABASE_URL="file:$ui_database_path" node scripts/setup-database.mjs)
 if [[ "${NODE_ENV:-development}" != production ]]; then
@@ -110,12 +111,13 @@ fi
 export RUNTIME_PROJECT_NAME=scale RUNTIME_AI_ENDPOINT=/api/ai/evaluation-governance-review RUNTIME_AI_FEATURE=evaluation-governance-review
 export RUNTIME_AI_SYSTEM_PROMPT='You are a governed model-evaluation assistant. Review immutable dataset, prompt, model, sampling and metric versions, source lineage, safety thresholds, reviewer approval, regression evidence, provider receipt, and explicit human release gates.'
 CHILD_PIDS=()
-(cd "$PROJECT_DIR"&&exec node runtime/api.mjs)&CHILD_PIDS+=("$!")
+export RUNTIME_PROXY_PORT="$FRONTEND_PORT" RUNTIME_PROXY_TARGET_PORT="$BACKEND_PORT"
 if [[ "${NODE_ENV:-development}" != production ]]; then
-  (cd "$PROJECT_DIR"&&exec env DATABASE_URL="file:$ui_database_path" npm run dev -- --hostname 127.0.0.1 --port "$FRONTEND_PORT")&CHILD_PIDS+=("$!")
+  (cd "$PROJECT_DIR"&&exec env DATABASE_URL="file:$ui_database_path" npm run dev -- --hostname 127.0.0.1 --port "$BACKEND_PORT")&CHILD_PIDS+=("$!")
 else
-  (cd "$PROJECT_DIR"&&exec env NODE_ENV=production DATABASE_URL="file:$ui_database_path" node scripts/start-next.mjs --hostname 127.0.0.1 --port "$FRONTEND_PORT")&CHILD_PIDS+=("$!")
+  (cd "$PROJECT_DIR"&&exec env NODE_ENV=production DATABASE_URL="file:$ui_database_path" node scripts/start-next.mjs --hostname 127.0.0.1 --port "$BACKEND_PORT")&CHILD_PIDS+=("$!")
 fi
+(cd "$PROJECT_DIR"&&exec node _runtime-proxy.mjs)&CHILD_PIDS+=("$!")
 kill_tree(){ local pid="$1" child;for child in $(pgrep -P "$pid" 2>/dev/null||true);do kill_tree "$child";done;kill -TERM "$pid" 2>/dev/null||true; }
 cleanup(){ trap - EXIT INT TERM;for pid in "${CHILD_PIDS[@]}";do kill_tree "$pid";done;for pid in "${CHILD_PIDS[@]}";do wait "$pid" 2>/dev/null||true;done; }
 trap cleanup EXIT INT TERM

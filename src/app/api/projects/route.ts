@@ -3,9 +3,9 @@ import prisma from "@/lib/prisma";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const status = searchParams.get("status");
+  const status = searchParams.get("status"); const q = searchParams.get("q") || searchParams.get("search") || "";
 
-  const where = status && status !== "all" ? { status } : {};
+  const where:any = {...(status && status !== "all" ? { status } : {}), ...(q ? { OR: [{ name: { contains: q } }, { client: { contains: q } }, { type: { contains: q } }] } : {})};
   const projects = await prisma.project.findMany({ where, orderBy: { createdAt: "desc" } });
 
   return NextResponse.json(projects);
